@@ -42,27 +42,6 @@ def traverse(root):
         currentLevel = nextLevel
 
 
-def exists(leftList, rightList, relevantNodes) -> bool:
-    for left in leftList:
-        for right in rightList:
-            if (left, right) in relevantNodes or (right, left) in relevantNodes:
-                return True
-    return False
-
-
-def algo(root: Tree, relevantNodes, sumL, sumR):
-    h = calcHight(root)
-    if h == 2:
-        if exists([root.left.node], [root.right.node], relevantNodes):
-            return 0
-        else:
-            root.node = [root.node, root.left.node, root.right.node]
-            return 1
-    sumL += algo(root.left, relevantNodes, sumL, sumR)
-    sumR += algo(root.right, relevantNodes, sumL, sumR)
-    return sumL+sumR
-
-
 def calcHight(root):
     if root is None:
         return 0
@@ -74,6 +53,29 @@ def generateNodeList(nLeaf: int):
     return np.arange(0, nNodes)
 
 
+def exists(left, right, paths) -> bool:
+    if paths[left] == paths[right]:
+        return 0
+    return 1
+
+
+def wrapper(root: Tree, relevantNodes):
+    path = {}
+    for i, (l, r) in enumerate(relevantNodes):
+        path[l] = i
+        path[r] = i
+    return solve(root, path, 0, 0)
+
+
+def solve(root: Tree, paths, sumL, sumR):
+    h = calcHight(root)
+    if h == 2:
+        return exists(root.left.node, root.right.node, paths)
+    sumL += solve(root.left, paths, sumL, sumR)
+    sumR += solve(root.right, paths, sumL, sumR)
+    return sumL + sumR
+
+
 if __name__ == '__main__':
     nLeaf = 3
 
@@ -81,8 +83,6 @@ if __name__ == '__main__':
     t = setup(nodeList, None, 0, len(nodeList))
     traverse(t)
 
-    relevantNodes = [(7, 8), (9, 10), (11, 12), (13, 14)]
-    print(algo(t, relevantNodes, 0, 0))
-    print()
-
-    traverse(t)
+    relevantNodes = [(7, 14), (8, 9), (10, 13), (11, 12)]
+    #relevantNodes = [(7, 8), (9, 10), (11, 12), (13, 14)]
+    print(wrapper(t, relevantNodes))

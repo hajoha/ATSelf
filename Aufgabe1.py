@@ -2,10 +2,11 @@ import numpy as np
 
 
 class Tree:
-    def __init__(self, val):
-        self.node = val
+    def __init__(self, ID):
+        self.ID = ID
         self.left = None
         self.right = None
+        self.val = 0
 
 
 def setup(arr, root, i, n):
@@ -31,7 +32,7 @@ def traverse(root):
     currentLevel = [root]
     while currentLevel:
         for node in currentLevel:
-            print(node.node, "\t", end='')
+            print(node.ID, "\t", end='')
         print()
         nextLevel = list()
         for n in currentLevel:
@@ -60,21 +61,23 @@ def exists(left, right, paths) -> bool:
 
 
 def wrapper(root: Tree, relevantNodes):
-    path = {}
+    nodes = {}
     for i, (l, r) in enumerate(relevantNodes):
-        path[l] = i
-        path[r] = i
-    return solve(root, path, 0, 0)
+        nodes[l] = i
+        nodes[r] = i
+    return solve(root, nodes)
 
 
-def solve(root: Tree, paths, sumL, sumR):
-    h = calcHight(root)
-    if h == 2:
-        return exists(root.left.node, root.right.node, paths)
-    sumL += solve(root.left, paths, sumL, sumR)
-    sumR += solve(root.right, paths, sumL, sumR)
-    return sumL + sumR
+def solve(root: Tree, tupleMap):
+    if root.right is None:
+        return [tupleMap[root.ID]], 0
+    lList, lVal = solve(root.left, tupleMap)
+    rList, rVal = solve(root.right, tupleMap)
 
+    outSet = list(set(lList).symmetric_difference(rList))
+
+    root.val = len(outSet)+root.right.val+root.left.val
+    return outSet, root.left.val+root.right.val
 
 if __name__ == '__main__':
     nLeaf = 3
@@ -83,6 +86,18 @@ if __name__ == '__main__':
     t = setup(nodeList, None, 0, len(nodeList))
     traverse(t)
 
-    relevantNodes = [(7, 14), (8, 9), (10, 13), (11, 12)]
-    #relevantNodes = [(7, 8), (9, 10), (11, 12), (13, 14)]
+    relevantNodes = [(7, 14), (8, 9), (10, 13), (11, 12)]  # 10
+    #relevantNodes = [(7, 8), (9, 10), (11, 12), (13, 14)]  # 0
+    #relevantNodes = [(7, 14), (8, 13), (9, 12), (10, 11)]   # 16
+    print(wrapper(t, relevantNodes))
+
+    nLeaf = 2
+
+    nodeList = generateNodeList(nLeaf)
+    t = setup(nodeList, None, 0, len(nodeList))
+    traverse(t)
+
+    relevantNodes = [(3, 5), (4, 6)]  # 5
+    # relevantNodes = [(7, 8), (9, 10), (11, 12), (13, 14)]  # 0
+    # relevantNodes = [(7, 14), (8, 13), (9, 12), (10, 11)]   # 16
     print(wrapper(t, relevantNodes))

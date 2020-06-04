@@ -65,19 +65,45 @@ def wrapper(root: Tree, relevantNodes):
     for i, (l, r) in enumerate(relevantNodes):
         nodes[l] = i
         nodes[r] = i
-    return solve(root, nodes)
+    solve(root, nodes)
+    return root.val
+
+
+def symmertricDifference(lList, rList):
+    U = lList + rList
+    U = set(U)
+    map1 = {}
+    for i, l in enumerate(lList):
+        map1[l] = i
+
+    intersect = []
+    for r in rList:
+        if r in map1:
+            intersect.append(r)
+
+    map2 = {}
+    for i, inter in enumerate(intersect):
+        map2[inter] = i
+
+    outSet = []
+    for u in U:
+        if not u in map2:
+            outSet.append(u)
+
+    return outSet
 
 
 def solve(root: Tree, tupleMap):
     if root.right is None:
-        return [tupleMap[root.ID]], 0
-    lList, lVal = solve(root.left, tupleMap)
-    rList, rVal = solve(root.right, tupleMap)
+        return [tupleMap[root.ID]]
+    lList = solve(root.left, tupleMap)
+    rList = solve(root.right, tupleMap)
+    # outSet = list(set(lList).symmetric_difference(rList))
+    outSet = symmertricDifference(lList, rList)
+    n = len(outSet) - 1
+    root.val = int((n * (n + 1)) / 2) + root.right.val + root.left.val
+    return outSet
 
-    outSet = list(set(lList).symmetric_difference(rList))
-
-    root.val = len(outSet)+root.right.val+root.left.val
-    return outSet, root.left.val+root.right.val
 
 if __name__ == '__main__':
     nLeaf = 3
@@ -86,18 +112,7 @@ if __name__ == '__main__':
     t = setup(nodeList, None, 0, len(nodeList))
     traverse(t)
 
-    relevantNodes = [(7, 14), (8, 9), (10, 13), (11, 12)]  # 10
-    #relevantNodes = [(7, 8), (9, 10), (11, 12), (13, 14)]  # 0
-    #relevantNodes = [(7, 14), (8, 13), (9, 12), (10, 11)]   # 16
-    print(wrapper(t, relevantNodes))
-
-    nLeaf = 2
-
-    nodeList = generateNodeList(nLeaf)
-    t = setup(nodeList, None, 0, len(nodeList))
-    traverse(t)
-
-    relevantNodes = [(3, 5), (4, 6)]  # 5
+    # relevantNodes = [(7, 14), (8, 9), (10, 13), (11, 12)]  # 10
     # relevantNodes = [(7, 8), (9, 10), (11, 12), (13, 14)]  # 0
     # relevantNodes = [(7, 14), (8, 13), (9, 12), (10, 11)]   # 16
     print(wrapper(t, relevantNodes))

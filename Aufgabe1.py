@@ -71,7 +71,7 @@ def wrapper(root: Tree, relevantNodes):
 
 def symmertricDifference(lList, rList):
     U = lList + rList
-    U = set(U)
+  #  U = set(U)
     map1 = {}
     for i, l in enumerate(lList):
         map1[l] = i
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     t = setup(nodeList, None, 0, len(nodeList))
     traverse(t)
 
-    # relevantNodes = [(7, 14), (8, 9), (10, 13), (11, 12)]  # 10
-    # relevantNodes = [(7, 8), (9, 10), (11, 12), (13, 14)]  # 0
-    # relevantNodes = [(7, 14), (8, 13), (9, 12), (10, 11)]   # 16
+    #relevantNodes = [(7, 14), (8, 9), (10, 13), (11, 12)]  # 10
+    relevantNodes = [(7, 8), (9, 10), (11, 12), (13, 14)]  # 0
+    #relevantNodes = [(7, 14), (8, 13), (9, 12), (10, 11)]   # 16
     print(wrapper(t, relevantNodes))

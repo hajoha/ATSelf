@@ -61,7 +61,7 @@ def calc(m, nodeList, f):
 
     nodesHit = hit(nodeList[nodeIDx], strength)
     for node in nodesHit:
-        i = getNodeID(node)
+        i = getNodeID(node)-1
         m[:, i] = 0
 
     return m, f(nodeList[nodeIDx], strength), nodeList[nodeIDx], strength
@@ -81,7 +81,7 @@ def solve(nodeList, f):
             if f(node, i) == 0:
                 m[i, nodeID] = float("inf")
             else:
-                m[i, nodeID] = len(hit(node, i)) / f(node, i)
+                m[i, nodeID] = len(hit(node, i)) / f(node, i+1)
 
     cost = 0
     emptyList = []
@@ -89,7 +89,7 @@ def solve(nodeList, f):
         m, tmpcost, node, strength = calc(m, nodeList, f)
         emptyList.append((strength, node.name))
         cost += tmpcost
-    print("cost: ", cost)
+
     return cost
 
 if __name__ == '__main__':
@@ -97,11 +97,14 @@ if __name__ == '__main__':
     print_tree(root, horizontal=False)
     nodeListSorted = sortNodes(nodeList)
 
-    m = np.zeros((len(nodeList)+1, len(nodeList)+1))
+    m = np.zeros((len(nodeList), len(nodeList)))
     for node, child in nodeListSorted:
-        nodeID = getNodeID(node)
+        nodeID = getNodeID(node)-1
         for i in range(len(nodeList)):
-            m[i, nodeID] = len(hit(node, i)) / f_(node,i)
+            if f_(node, i) == 0:
+                m[i, nodeID] = float("inf")
+            else:
+                m[i, nodeID] = len(hit(node, i)) / f_(node,i+1)
     print(np.round(m, 2))
 
     cost = 0
@@ -110,6 +113,7 @@ if __name__ == '__main__':
         m, tmpcost, node, strength = calc(m, nodeList, f_)
         print(np.round(m,2))
         emptyList.append((strength, node.name))
+        print((strength, node.name))
         cost += tmpcost
 
     print(cost)

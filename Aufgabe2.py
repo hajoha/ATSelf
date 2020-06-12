@@ -48,7 +48,7 @@ def hit_rec(node, i):
     return count
 
 
-def calc(m, prioQ, f, nodeList):
+def calc(prioQ, f, nodeList):
     cost = 0
     for _, nodeID, strength in prioQ:
         if nodeID == strength == -1:
@@ -56,7 +56,6 @@ def calc(m, prioQ, f, nodeList):
         nodesHit = hit(nodeList[nodeID], strength)
         for node in nodesHit:
             i = getNodeID(node) - 1
-            m[:, i] = 0
             prioQ[i] = (-1, -1, -1)
         cost += f(nodeList[nodeID], strength)
 
@@ -70,22 +69,20 @@ def f_(node, i):
 def solve(nodeList, f):
     nodeListSorted = sortNodes(nodeList)
     Q = []
-    m = np.zeros((len(nodeList), len(nodeList)))
     for node, child in nodeListSorted:
         nodeID = getNodeID(node) - 1
         max = float("-inf")
         for i in range(len(nodeList)):
-            if f(node, i) == 0:
-                m[i, nodeID] = float("inf")
-            else:
-                m[i, nodeID] = len(hit(node, i)) / f(node, i + 1)
-            if m[i, nodeID] >= max:
-                max = m[i, nodeID]
+            tmp = float("inf")
+            if f(node, i) != 0:
+                tmp = len(hit(node, i)) / f(node, i + 1)
+            if tmp >= max:
+                max = tmp
                 strength = i
 
         Q.append((max, nodeID, strength))
-
-    return calc(m, Q, f, nodeList)
+        #sorted(Q, key=lambda x: x[1], reverse=True)
+    return calc(Q, f, nodeList)
 
 
 if __name__ == '__main__':

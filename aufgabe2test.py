@@ -1,46 +1,55 @@
 import timeit
 from unittest import TestCase
-from ATSelf.Aufgabe2 import *
+from ATSelf.aufgabe2_try2 import *
 import random
 import matplotlib.pyplot as plt
 
 
 def setup1():
-    s1 = Node("S1")
+    s0 = Node("S0")
+    s1 = Node("S1", s0)
     s2 = Node("S2", s1)
-    s3 = Node("S3", s2)
-    s4 = Node("S4", s2)
+    s3 = Node("S3", s1)
 
-    return s1, [s1, s2, s3, s4]
+    return s0, [s0, s1, s2, s3]
 
 
 def setup2():
-    s1 = Node("S1")
+    s0 = Node("S0")
+
+    s1 = Node("S1", s0)
 
     s2 = Node("S2", s1)
+    s3 = Node("S3", s1)
+    s4 = Node("S4", s1)
 
-    s3 = Node("S3", s2)
-    s4 = Node("S4", s2)
     s5 = Node("S5", s2)
+    s6 = Node("S6", s2)
 
-    s6 = Node("S6", s3)
-    s7 = Node("S7", s3)
-
-    return s1, [s1, s2, s3, s4, s5, s6, s7]
+    return s0, [s0, s1, s2, s3, s4, s5, s6]
 
 
 def setup3():
-    s5 = Node("S5")
-    s1 = Node("S1", s5)
-    s2 = Node("S2", s5)
-    s3 = Node("S3", s5)
-    s4 = Node("S4", s5)
+    s4 = Node("S4")
+    s0 = Node("S0", s4)
+    s1 = Node("S1", s4)
+    s2 = Node("S2", s4)
+    s3 = Node("S3", s4)
 
-    return s5, [s1, s2, s3, s4, s5]
+    return s4, [s0, s1, s2, s3, s4]
+
+
+def setup4():
+    s0 = Node("S0")
+    s1 = Node("S1", s0)
+    s2 = Node("S2", s1)
+    s3 = Node("S3", s2)
+
+    return s0, [s0, s1, s2, s3]
 
 
 def generateRandom(n: int):
-    s0 = Node("0")
+    s0 = Node("S0")
 
     nodes = [s0]
     for i in range(1, n):
@@ -62,21 +71,29 @@ def f2(node, i):
 
 
 def f3(node, i):
-    return int(getNodeID(node)) + i ** 2
+    return node.ID + i ** 2
+
+
+test_cases = [
+    (setup1, 2, f1),
+    (setup2, 3, f1),
+    (setup2, 0, f0),
+    (setup2, 6, f2),
+    (setup3, 4, f3),
+    (setup4, 3, f1),
+    (setup4, 4, f2),
+    (setup4, 3, f3),
+]
 
 
 class Test(TestCase):
     def test_solve(self):
-        for idx, (setup, exp, f) in enumerate([(setup1, 2, f1),
-                                               (setup2, 3, f1),
-                                               (setup2, 0, f0),
-                                               (setup2, 6, f2),
-                                               (setup3, 4, f3)]):
+        for idx, (setup, exp, f) in enumerate(test_cases):
             root, nodeList = setup()
-            res = solve(nodeList, f)
-            print(idx, res)
+            res = solve(root, nodeList, f)
             if res != exp:
                 print_tree(root, horizontal=False)
+            print("case: ", idx, "result: ", res, "expected: ", exp)
 
             self.assertEqual(res, exp, f"Case: {idx}")
 

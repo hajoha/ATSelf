@@ -1,6 +1,44 @@
 from pptree import *
 import numpy as np
 
+class Node:
+    def __init__(self, name, parent=None):
+        self.name = name
+        self.parent = parent
+        self.children = []
+        self.ID = int(name[-1])
+
+        if parent:
+            self.parent.children.append(self)
+
+    def adj(self):
+        c = []
+        if self.parent is not None:
+            c += [self.parent]
+        c += self.children
+        return c
+
+    def __delitem__(self, key):
+        self.__delattr__(self.ID)
+
+    def __getitem__(self, item):
+        return self.__getattribute__(self.item)
+
+    def __setitem__(self, key, value):
+        self.__setattr__(key, value)
+
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
+    def __add__(self, other):
+        return self.name + other
+
+    def __radd__(self, other):
+        return other + self.name
+
 
 def setup():
     s1 = Node("S1")
@@ -66,17 +104,17 @@ def f_(node, i):
     return i + 1
 
 
-def solve(nodeList, f):
+def solve(r, nodeList, f):
     nodeListSorted = sortNodes(nodeList)
     Q = []
     for node, child in nodeListSorted:
-        nodeID = getNodeID(node) - 1
+        nodeID = node.ID
         max = float("-inf")
         for i in range(len(nodeList)):
             tmp = float("inf")
             if f(node, i) != 0:
                 tmp = len(hit(node, i)) / f(node, i + 1)
-            if tmp >= max:
+            if tmp > max:
                 max = tmp
                 strength = i
 
@@ -88,4 +126,4 @@ def solve(nodeList, f):
 if __name__ == '__main__':
     root, nodeList = setup()
     print_tree(root, horizontal=False)
-    print(solve(nodeList, f_))
+    print(solve(root, nodeList, f_))

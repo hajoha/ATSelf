@@ -44,6 +44,9 @@ class Node:
     def __radd__(self, other):
         return other + self.name
 
+    def __del__(self):
+        pass
+
 
 def setup():
     s0 = Node("S0")
@@ -257,6 +260,10 @@ def fill(root, f, nNodes, cost):
     for n in root.children:
         fill(n, f, nNodes, cost)
     calcSendRecv(root, nNodes, f)
+    if root.children is not None:
+        for c in root.children:
+            if root.children is not None:
+                del c.children
     return
 
 

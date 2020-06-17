@@ -98,23 +98,21 @@ class Test(TestCase):
             self.assertEqual(res, exp, f"Case: {idx}")
 
     def test_solve_random_ntimes(self):
-        maxValue = 100000
-        step = 5000
-        n = np.arange(0, int(maxValue), step)
+        maxValue = 50000
+        step = 10000
+        n = np.arange(step, int(maxValue), step)
         runtime = []
         for i in range(len(n)):
-
-            start = timeit.default_timer()
-
             root, nodeList = generateRandom(n[i])
+            start = timeit.default_timer()
+            res = solve(root, nodeList, f0)
 
             stop = timeit.default_timer()
             delta = stop - start
 
-            print(str(n[i]) + "\t", "\t\tdelta: " + str(delta / 60) + "\t\tin minutes")
+            print(str(n[i]) + "\t", "\t\tdelta: " + str(delta) + "\t\tin sec")
             runtime.append((n[i], delta))
 
-            res = solve(nodeList, f0)
             if res != 0:
                 print_tree(root, horizontal=False)
 

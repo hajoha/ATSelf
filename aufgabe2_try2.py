@@ -5,12 +5,13 @@ import itertools
 
 
 class Node:
-    def __init__(self, name, parent=None, array=None):
+    def __init__(self, name, parent=None):
         self.name = name
         self.parent = parent
         self.children = []
         self.ID = int(name[-1])
-        self.array = array
+        self.send = None
+        self.recv = None
 
         if parent:
             self.parent.children.append(self)
@@ -58,6 +59,7 @@ def setup():
 
     return s0, [s0, s1, s2, s3, s4, s5, s6]
 
+
 def setup_():
     s5 = Node("S5")
 
@@ -67,7 +69,6 @@ def setup_():
     s3 = Node("S3", s5)
 
     return s5, [s1, s2, s3]
-
 
 
 def calcChild(t, ):
@@ -219,7 +220,7 @@ def decideNodes(hN, n, f):
         else:
             tmp = (key, float("-inf"))
             if f(key[0], key[1]) != 0:
-                tmp = (key, len(nodes)/f(key[0], key[1]))
+                tmp = (key, len(nodes) / f(key[0], key[1]))
             notDone.append(tmp)
 
     nodesDone = sorted(done, key=lambda x: x[1], reverse=True)
@@ -228,43 +229,45 @@ def decideNodes(hN, n, f):
     return nodesDone, nodesNotDone
 
 
+def calcSendRecv(node, nNodes, f):
+    node.send = {}
+    node.recv = {}
+
+    for strength in range(nNodes):
+        sumC = 0
+        for child in node.children:
+            sumC += child.recv[strength]
+        node.send[strength] = f(node, strength) + sumC      # Berechnung wenn ich Mast in Node aufstelle
+        if strength != nNodes - 1:                          # Berechnung wenn ich Mast in Node.child aufstelle
+            for c in node.children:
+                tmp = c.send[strength + 1] + (sumC - c.recv[strength])
+                if node.send[strength] >= tmp:
+                    node.send[strength] = tmp
+
+    for strength in range(nNodes):
+        node.recv[strength] = 0
+        if strength == 0:
+            node.recv[strength] = node.send[strength]
+        else:
+            for child in node.children:
+                node.recv[strength] += child.recv[strength -1]
+
+
 def fill(root, f, nNodes, cost):
-    if len(root.children) == 0:
-        root.array = {}
-        for strength in range(nNodes):
-            root.array[strength] = (root, f(root, strength), strength)
-        return
-    else:
-        for n in root.children:
-            fill(n, f, nNodes, cost)
-
-    root.array = {}
-    for strength in range(nNodes):
-        root.array[strength] = (root, f(root, strength), strength)
-    compare = []
-
     for n in root.children:
-        compare.append(n.array)
-
-    for comp in compare:
-        for strength in range(nNodes-1):
-            if root.array[strength][1] >= comp[strength+1][1]:
-                root.array[strength] = comp[strength]
-    cost = 0
-    for strength in range(nNodes):
-        root.array[strength] = (root.array[strength][0], root.array[strength][1]-1, root.array[strength][2])
-        if root.array[strength][1] == 0:
-            cost += f(root.array[strength][0], root.array[strength][1])
-            root.array[strength] = (root, f(root, strength), strength)
-    return cost, 0
+        fill(n, f, nNodes, cost)
+    calcSendRecv(root, nNodes, f)
+    return
 
 
 def solve(root, nL, f):
-    n = len(nL)
-    return fill(root, f, len(nL)-1, 0)[0]
+    fill(root, f, len(nL), 0)
+    return root.send[min(root.send.keys(), key=(lambda k: root.send[k]))]
+
 
 def f_(node, i):
     return i
+
 
 if __name__ == '__main__':
     root, nL = setup()

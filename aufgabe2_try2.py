@@ -102,7 +102,7 @@ def fill(root, f, nNodes, cost):
     calcSendRecv(root, nNodes, f)
     if root.children is not None:
         for c in root.children:
-            if root.children is not None:
+            if c.children is not None:
                 del c.children
     return
 
